@@ -13,9 +13,10 @@ ARG P4TCP=1666
 ARG P4HOST=p4.helix
 ARG P4USER=admin
 ARG P4PASSWD=Password
-ARG P4ROOT=/p4
-ARG P4JOURNAL=/p4/journal
-ARG P4LOG=/p4/p4d.log
+ARG P4ROOT=/p4/root
+ARG P4LOGDIR=/p4/log
+ARG P4JOURNAL=$P4LOGDIR/journal
+ARG P4LOG=$P4LOGDIR/p4d.log
 ARG P4ARGS=-C0
 
 # Define Environment 
@@ -43,26 +44,27 @@ RUN \
   echo "deb http://package.perforce.com/apt/ubuntu trusty release" > /etc/apt/sources.list.d/perforce.list && \
   apt-get update
 
-# Create perforce user with UID to 1000 before p4d installation
-RUN useradd --home-dir /p4 --create-home --uid 1000 perforce
-RUN echo ${OSUSER}:${PSPASSWD} | /usr/sbin/chpasswd
-
-# Install Perforce Server
-RUN apt-get install -y helix-p4d
-
-# Expose Perforce TCP port
-EXPOSE ${P4TCP}
+# Create perforce user and install Perforce Server
+RUN \
+  useradd --home-dir /p4 --create-home --uid 1000 perforce && \
+  echo ${OSUSER}:${PSPASSWD} | /usr/sbin/chpasswd && \
+  apt-get install -y helix-p4d
 
 # Add external files
 ADD files/main.conf /etc/perforce/p4dctl.conf.d/
 RUN \
-  sed -i "s|%P4PORT%|${P4TCP}|g" /etc/perforce/p4dctl.conf.d/main.conf && \
-  sed -i "s|%P4ROOT%|${P4ROOT}|g" /etc/perforce/p4dctl.conf.d/main.conf && \
-  sed -i "s|%P4JOURNAL%|${P4JOURNAL}|g" /etc/perforce/p4dctl.conf.d/main.conf && \
-  sed -i "s|%P4LOG%|${P4LOG}|g" /etc/perforce/p4dctl.conf.d/main.conf && \
-  sed -i "s|%P4ARGS%|${P4ARGS}|g" /etc/perforce/p4dctl.conf.d/main.conf && \
-  chown perforce:perforce /p4 && \
-  chown -R perforce:perforce /p4
+  sed -i "s|%P4PORT%|$P4TCP|g" /etc/perforce/p4dctl.conf.d/main.conf && \
+  sed -i "s|%P4ROOT%|$P4ROOT|g" /etc/perforce/p4dctl.conf.d/main.conf && \
+  sed -i "s|%P4JOURNAL%|$P4JOURNAL|g" /etc/perforce/p4dctl.conf.d/main.conf && \
+  sed -i "s|%P4LOG%|$P4LOG|g" /etc/perforce/p4dctl.conf.d/main.conf && \
+  sed -i "s|%P4ARGS%|$P4ARGS|g" /etc/perforce/p4dctl.conf.d/main.conf && \
+  mkdir -p $P4ROOT && chown -R perforce:perforce $P4ROOT && \
+  mkdir -p $P4LOGDIR && chown -R perforce:perforce $P4LOGDIR
+
+# Expose Perforce; TCP port and volumes
+EXPOSE $P4TCP
+VOLUME $P4ROOT
+VOLUME $P4LOGDIR
 
 # Setup basic user and security
 USER perforce
