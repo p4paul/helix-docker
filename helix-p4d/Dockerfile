@@ -31,6 +31,7 @@ ARG P4CKP=$P4HOME/checkpoints
 ARG P4LOGDIR=$P4HOME/log
 ARG P4JOURNAL=$P4LOGDIR/journal
 ARG P4LOG=$P4LOGDIR/p4d.log
+ARG JNL_PREFIX=$P4NAME
 ARG P4CASE=-C1
 
 # Define Environment
@@ -44,6 +45,7 @@ ENV P4DEPOTS=$P4DEPOTS
 ENV P4CKP=$P4CKP
 ENV P4JOURNAL=$P4JOURNAL
 ENV P4LOG=$P4LOG
+ENV JNL_PREFIX=$JNL_PREFIX
 ENV P4CASE=$P4CASE
 
 # --------------------------------------------------------------------------------
@@ -58,7 +60,7 @@ RUN \
 
 # Add external files
 COPY files/restore.sh /usr/local/bin/restore.sh
-COPY files/latest.sh /usr/local/bin/latest.sh
+COPY files/latest_checkpoint.sh /usr/local/bin/latest_checkpoint.sh
 
 COPY files/main.conf /etc/perforce/p4dctl.conf.d/
 RUN \
@@ -66,9 +68,9 @@ RUN \
   sed -i "s|%P4ROOT%|$P4ROOT|g" /etc/perforce/p4dctl.conf.d/main.conf && \
   sed -i "s|%P4JOURNAL%|$P4JOURNAL|g" /etc/perforce/p4dctl.conf.d/main.conf && \
   sed -i "s|%P4LOG%|$P4LOG|g" /etc/perforce/p4dctl.conf.d/main.conf && \
-  sed -i "s|%P4ARGS%|-In $P4NAME $P4CASE|g" /etc/perforce/p4dctl.conf.d/main.conf && \
+  sed -i "s|%P4ARGS%|$P4CASE|g" /etc/perforce/p4dctl.conf.d/main.conf && \
   chmod +x /usr/local/bin/restore.sh && \
-  chmod +x /usr/local/bin/latest.sh && \
+  chmod +x /usr/local/bin/latest_checkpoint.sh && \
   mkdir -p $P4ROOT && chown perforce:perforce $P4ROOT && \
   mkdir -p $P4DEPOTS && chown perforce:perforce $P4DEPOTS && \
   mkdir -p $P4CKP && chown perforce:perforce $P4CKP && \
@@ -82,14 +84,15 @@ VOLUME $P4LOGDIR
 VOLUME $P4DEPOTS
 VOLUME $P4CKP
 
-# Setup basic user and security
+# Setup basic user and security for an empty server
 USER perforce
 ENV P4RSH="rsh:p4d $P4ARGS -r $P4ROOT -L $P4LOG -J $P4JOURNAL -i"
 RUN \
   p4 -p "$P4RSH" user -o | p4 -p "$P4RSH" user -i && \
   p4 -p "$P4RSH" protect -o | p4 -p "$P4RSH" protect -i && \
   p4 -p "$P4RSH" passwd -P $P4PASSWD && \
-  p4 -p "$P4RSH" configure set server.depot.root=$P4DEPOTS
+  p4 -p "$P4RSH" configure set $P4NAME#server.depot.root=$P4DEPOTS && \
+  p4 -p "$P4RSH" configure set $P4NAME#journalPrefix=$P4CKP/$JNL_PREFIX
 
 # --------------------------------------------------------------------------------
 # Docker RUN

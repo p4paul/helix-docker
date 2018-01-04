@@ -2,7 +2,7 @@
 
 ## Find latest checkpoint
 unset -v latest
-for file in "$P4CKP"/ckp*; do
+for file in "$P4CKP"/checkpoint*; do
   [[ $file -nt $latest ]] && latest=$file
 done
 
