@@ -27,6 +27,7 @@ ARG P4PASSWD=Password!
 ARG P4HOME=/p4
 ARG P4ROOT=$P4HOME/root
 ARG P4DEPOTS=$P4HOME/depots
+ARG P4CKP=$P4HOME/checkpoints
 ARG P4LOGDIR=$P4HOME/log
 ARG P4JOURNAL=$P4LOGDIR/journal
 ARG P4LOG=$P4LOGDIR/p4d.log
@@ -40,6 +41,7 @@ ENV P4PASSWD=$P4PASSWD
 ENV P4HOME=$P4HOME
 ENV P4ROOT=$P4ROOT
 ENV P4DEPOTS=$P4DEPOTS
+ENV P4CKP=$P4CKP
 ENV P4JOURNAL=$P4JOURNAL
 ENV P4LOG=$P4LOG
 ENV P4CASE=$P4CASE
@@ -55,6 +57,9 @@ RUN \
   apt-get install -y helix-p4d
 
 # Add external files
+COPY files/restore.sh /usr/local/bin/restore.sh
+COPY files/latest.sh /usr/local/bin/latest.sh
+
 COPY files/main.conf /etc/perforce/p4dctl.conf.d/
 RUN \
   sed -i "s|%P4PORT%|$P4TCP|g" /etc/perforce/p4dctl.conf.d/main.conf && \
@@ -62,8 +67,11 @@ RUN \
   sed -i "s|%P4JOURNAL%|$P4JOURNAL|g" /etc/perforce/p4dctl.conf.d/main.conf && \
   sed -i "s|%P4LOG%|$P4LOG|g" /etc/perforce/p4dctl.conf.d/main.conf && \
   sed -i "s|%P4ARGS%|-In $P4NAME $P4CASE|g" /etc/perforce/p4dctl.conf.d/main.conf && \
+  chmod +x /usr/local/bin/restore.sh && \
+  chmod +x /usr/local/bin/latest.sh && \
   mkdir -p $P4ROOT && chown perforce:perforce $P4ROOT && \
   mkdir -p $P4DEPOTS && chown perforce:perforce $P4DEPOTS && \
+  mkdir -p $P4CKP && chown perforce:perforce $P4CKP && \
   mkdir -p $P4LOGDIR && chown perforce:perforce $P4LOGDIR && \
   chown -R perforce:perforce $P4HOME
 
@@ -72,6 +80,7 @@ EXPOSE $P4TCP
 VOLUME $P4ROOT
 VOLUME $P4LOGDIR
 VOLUME $P4DEPOTS
+VOLUME $P4CKP
 
 # Setup basic user and security
 USER perforce
