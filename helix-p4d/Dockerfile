@@ -20,6 +20,7 @@ RUN \
 # --------------------------------------------------------------------------------
 
 # Default Environment
+ARG P4NAME=master
 ARG P4TCP=1666
 ARG P4USER=super
 ARG P4PASSWD=Password!
@@ -29,9 +30,10 @@ ARG P4DEPOTS=$P4HOME/depots
 ARG P4LOGDIR=$P4HOME/log
 ARG P4JOURNAL=$P4LOGDIR/journal
 ARG P4LOG=$P4LOGDIR/p4d.log
-ARG P4ARGS=-C1
+ARG P4CASE=-C1
 
-# Define Environment 
+# Define Environment
+ENV P4NAME=$P4NAME
 ENV P4PORT=$P4TCP
 ENV P4USER=$P4USER
 ENV P4PASSWD=$P4PASSWD
@@ -40,7 +42,7 @@ ENV P4ROOT=$P4ROOT
 ENV P4DEPOTS=$P4DEPOTS
 ENV P4JOURNAL=$P4JOURNAL
 ENV P4LOG=$P4LOG
-ENV P4ARGS=$P4ARGS
+ENV P4CASE=$P4CASE
 
 # --------------------------------------------------------------------------------
 # Docker BUILD
@@ -59,7 +61,7 @@ RUN \
   sed -i "s|%P4ROOT%|$P4ROOT|g" /etc/perforce/p4dctl.conf.d/main.conf && \
   sed -i "s|%P4JOURNAL%|$P4JOURNAL|g" /etc/perforce/p4dctl.conf.d/main.conf && \
   sed -i "s|%P4LOG%|$P4LOG|g" /etc/perforce/p4dctl.conf.d/main.conf && \
-  sed -i "s|%P4ARGS%|$P4ARGS|g" /etc/perforce/p4dctl.conf.d/main.conf && \
+  sed -i "s|%P4ARGS%|-In $P4NAME $P4CASE|g" /etc/perforce/p4dctl.conf.d/main.conf && \
   mkdir -p $P4ROOT && chown perforce:perforce $P4ROOT && \
   mkdir -p $P4DEPOTS && chown perforce:perforce $P4DEPOTS && \
   mkdir -p $P4LOGDIR && chown perforce:perforce $P4LOGDIR && \
