@@ -2,7 +2,7 @@
 
 ## Find latest checkpoint
 unset -v latest
-for file in "$P4CKP"/$JNL_PREFIX.ckp.*; do
+for file in "$P4CKP"/$JNL_PREFIX.ckp.*.gz; do
   [[ $file -nt $latest ]] && latest=$file
 done
 

@@ -10,7 +10,7 @@ if [ ! -L $P4CKP/latest ]; then
 fi
 
 ## Stop Perforce
-p4dctl stop main
+p4 admin stop
 until ! p4 info -s 2> /dev/null; do sleep 1; done
 
 ## Save current data base
@@ -29,5 +29,5 @@ p4d $P4CASE -r $P4ROOT "-cset ${P4NAME}#server.depot.root=${P4DEPOTS}"
 p4d $P4CASE -r $P4ROOT "-cset ${P4NAME}#journalPrefix=${P4CKP}/${JNL_PREFIX}"
 
 ## Start Perforce
-p4dctl start main
+p4d $P4CASE -r$P4ROOT -p$P4PORT -L$P4LOG -J$P4JOURNAL -d
 until p4 info -s; do sleep 1; done

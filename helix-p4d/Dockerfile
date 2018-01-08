@@ -24,29 +24,25 @@ ARG P4NAME=master
 ARG P4TCP=1666
 ARG P4USER=super
 ARG P4PASSWD=Password!
-ARG P4HOME=/p4
-ARG P4ROOT=$P4HOME/root
-ARG P4DEPOTS=$P4HOME/depots
-ARG P4CKP=$P4HOME/checkpoints
-ARG P4LOGDIR=$P4HOME/log
-ARG P4JOURNAL=$P4LOGDIR/journal
-ARG P4LOG=$P4LOGDIR/p4d.log
-ARG JNL_PREFIX=$P4NAME
 ARG P4CASE=-C1
 
-# Define Environment
-ENV P4NAME=$P4NAME
-ENV P4PORT=$P4TCP
-ENV P4USER=$P4USER
-ENV P4PASSWD=$P4PASSWD
-ENV P4HOME=$P4HOME
-ENV P4ROOT=$P4ROOT
-ENV P4DEPOTS=$P4DEPOTS
-ENV P4CKP=$P4CKP
-ENV P4JOURNAL=$P4JOURNAL
-ENV P4LOG=$P4LOG
-ENV JNL_PREFIX=$JNL_PREFIX
-ENV P4CASE=$P4CASE
+# Dynamic Environment
+ENV P4NAME=$P4NAME \
+  P4PORT=$P4TCP \
+  P4USER=$P4USER \
+  P4CASE=$P4CASE \
+  JNL_PREFIX=$P4NAME
+
+# Base Environment
+ENV P4HOME=/p4
+ENV P4LOGDIR=$P4HOME/log
+
+# Derrived Environment
+ENV P4ROOT=$P4HOME/root \
+  P4DEPOTS=$P4HOME/depots \
+  P4CKP=$P4HOME/checkpoints \
+  P4JOURNAL=$P4LOGDIR/journal \
+  P4LOG=$P4LOGDIR/p4d.log
 
 # --------------------------------------------------------------------------------
 # Docker BUILD
@@ -60,16 +56,12 @@ RUN \
 
 # Add external files
 COPY files/restore.sh /usr/local/bin/restore.sh
+COPY files/empty_setup.sh /usr/local/bin/empty_setup.sh
 COPY files/latest_checkpoint.sh /usr/local/bin/latest_checkpoint.sh
 
-COPY files/main.conf /etc/perforce/p4dctl.conf.d/
 RUN \
-  sed -i "s|%P4PORT%|$P4TCP|g" /etc/perforce/p4dctl.conf.d/main.conf && \
-  sed -i "s|%P4ROOT%|$P4ROOT|g" /etc/perforce/p4dctl.conf.d/main.conf && \
-  sed -i "s|%P4JOURNAL%|$P4JOURNAL|g" /etc/perforce/p4dctl.conf.d/main.conf && \
-  sed -i "s|%P4LOG%|$P4LOG|g" /etc/perforce/p4dctl.conf.d/main.conf && \
-  sed -i "s|%P4ARGS%|$P4CASE|g" /etc/perforce/p4dctl.conf.d/main.conf && \
   chmod +x /usr/local/bin/restore.sh && \
+  chmod +x /usr/local/bin/empty_setup.sh && \
   chmod +x /usr/local/bin/latest_checkpoint.sh && \
   mkdir -p $P4ROOT && chown perforce:perforce $P4ROOT && \
   mkdir -p $P4DEPOTS && chown perforce:perforce $P4DEPOTS && \
@@ -88,6 +80,7 @@ VOLUME $P4CKP
 USER perforce
 ENV P4RSH="rsh:p4d $P4ARGS -r $P4ROOT -L $P4LOG -J $P4JOURNAL -i"
 RUN \
+  echo $P4RSH && \
   p4 -p "$P4RSH" user -o | p4 -p "$P4RSH" user -i && \
   p4 -p "$P4RSH" protect -o | p4 -p "$P4RSH" protect -i && \
   p4 -p "$P4RSH" passwd -P $P4PASSWD && \
@@ -99,7 +92,7 @@ RUN \
 # --------------------------------------------------------------------------------
 
 ENTRYPOINT \
-  p4dctl start main && \
+  p4d $P4CASE -r$P4ROOT -p$P4PORT -L$P4LOG -J$P4JOURNAL -d && \
   until p4 info -s; do sleep 1; done && \
   bash
 
