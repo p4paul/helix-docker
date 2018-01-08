@@ -10,7 +10,7 @@ LABEL maintainer="Paul Allen (pallen@perforce.com)"
 # Update Ubuntu and add Perforce Package Source
 RUN \
   apt-get update && \
-  apt-get install -y curl wget unzip vim && \
+  apt-get install -y wget unzip && \
   wget -qO - https://package.perforce.com/perforce.pubkey | sudo apt-key add - && \
   echo "deb http://package.perforce.com/apt/ubuntu trusty release" > /etc/apt/sources.list.d/perforce.list && \
   apt-get update
@@ -30,6 +30,7 @@ ARG P4CASE=-C1
 ENV P4NAME=$P4NAME \
   P4PORT=$P4TCP \
   P4USER=$P4USER \
+  P4PASSWD=$P4PASSWD \
   P4CASE=$P4CASE \
   JNL_PREFIX=$P4NAME
 
@@ -51,15 +52,19 @@ ENV P4ROOT=$P4HOME/root \
 # Create perforce user and install Perforce Server
 RUN \
   useradd --user-group --home-dir $P4HOME --create-home --uid 1000 perforce && \
-  echo perforce:$P4PASSWD | /usr/sbin/chpasswd && \
-  apt-get install -y helix-p4d
+  apt-get install -y helix-p4d && \
+  apt-get install -y helix-swarm-triggers
 
 # Add external files
+COPY files/clean.sh /usr/local/bin/clean.sh
 COPY files/restore.sh /usr/local/bin/restore.sh
 COPY files/empty_setup.sh /usr/local/bin/empty_setup.sh
 COPY files/latest_checkpoint.sh /usr/local/bin/latest_checkpoint.sh
+COPY files/swarm-trigger.conf /opt/perforce/etc/swarm-trigger.conf
+COPY files/triggers.p4s /opt/perforce/etc/triggers.p4s
 
 RUN \
+  chmod +x /usr/local/bin/clean.sh && \
   chmod +x /usr/local/bin/restore.sh && \
   chmod +x /usr/local/bin/empty_setup.sh && \
   chmod +x /usr/local/bin/latest_checkpoint.sh && \
@@ -78,14 +83,6 @@ VOLUME $P4CKP
 
 # Setup basic user and security for an empty server
 USER perforce
-ENV P4RSH="rsh:p4d $P4ARGS -r $P4ROOT -L $P4LOG -J $P4JOURNAL -i"
-RUN \
-  echo $P4RSH && \
-  p4 -p "$P4RSH" user -o | p4 -p "$P4RSH" user -i && \
-  p4 -p "$P4RSH" protect -o | p4 -p "$P4RSH" protect -i && \
-  p4 -p "$P4RSH" passwd -P $P4PASSWD && \
-  p4 -p "$P4RSH" configure set $P4NAME#server.depot.root=$P4DEPOTS && \
-  p4 -p "$P4RSH" configure set $P4NAME#journalPrefix=$P4CKP/$JNL_PREFIX
 
 # --------------------------------------------------------------------------------
 # Docker RUN
@@ -94,6 +91,7 @@ RUN \
 ENTRYPOINT \
   p4d $P4CASE -r$P4ROOT -p$P4PORT -L$P4LOG -J$P4JOURNAL -d && \
   until p4 info -s; do sleep 1; done && \
+  empty_setup.sh && \
   bash
 
 HEALTHCHECK \

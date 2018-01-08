@@ -1,0 +1,9 @@
+Triggers:
+        swarm.job        form-commit          job            "/opt/perforce/swarm-triggers/bin/swarm-trigger.pl -t job          -v %formname%"
+        swarm.user       form-commit          user           "/opt/perforce/swarm-triggers/bin/swarm-trigger.pl -t user         -v %formname%"
+        swarm.userdel    form-delete          user           "/opt/perforce/swarm-triggers/bin/swarm-trigger.pl -t userdel      -v %formname%"
+        swarm.group      form-commit          group          "/opt/perforce/swarm-triggers/bin/swarm-trigger.pl -t group        -v %formname%"
+        swarm.groupdel   form-delete          group          "/opt/perforce/swarm-triggers/bin/swarm-trigger.pl -t groupdel     -v %formname%"
+        swarm.changesave form-save            change         "/opt/perforce/swarm-triggers/bin/swarm-trigger.pl -t changesave   -v %formname%"
+        swarm.shelve     shelve-commit        //...          "/opt/perforce/swarm-triggers/bin/swarm-trigger.pl -t shelve       -v %change%"
+        swarm.commit     change-commit        //...          "/opt/perforce/swarm-triggers/bin/swarm-trigger.pl -t commit       -v %change%"

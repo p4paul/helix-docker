@@ -1,0 +1,23 @@
+version: '2'
+services:
+  p4d.helix:
+    build: helix-p4d
+    hostname: p4d
+    domainname: helix
+    env_file:
+      - helix.env
+    ports:
+      - 4000:1666
+    tty: true
+
+  swarm.helix:
+    build: helix-swarm
+    hostname: swarm
+    domainname: helix
+    env_file:
+      - helix.env
+    ports:
+      - 5080:80
+    depends_on:
+      - p4d.helix
+    tty: true
