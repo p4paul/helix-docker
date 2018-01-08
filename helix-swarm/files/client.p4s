@@ -1,0 +1,8 @@
+Client:         swarm.triggers.ws
+Owner:          swarm
+Root:           /home/swarm
+Options:        noallwrite noclobber nocompress unlocked nomodtime normdir
+SubmitOptions:  submitunchanged
+LineEnd:        local
+View:
+                //depot/triggers/... //swarm.triggers.ws/...

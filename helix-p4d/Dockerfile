@@ -60,8 +60,6 @@ COPY files/clean.sh /usr/local/bin/clean.sh
 COPY files/restore.sh /usr/local/bin/restore.sh
 COPY files/empty_setup.sh /usr/local/bin/empty_setup.sh
 COPY files/latest_checkpoint.sh /usr/local/bin/latest_checkpoint.sh
-COPY files/swarm-trigger.conf /opt/perforce/etc/swarm-trigger.conf
-COPY files/triggers.p4s /opt/perforce/etc/triggers.p4s
 
 RUN \
   chmod +x /usr/local/bin/clean.sh && \

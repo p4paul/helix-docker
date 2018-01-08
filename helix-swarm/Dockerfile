@@ -45,6 +45,8 @@ ENV P4PORT=$P4PORT \
   SWARMTOKEN=$SWARMTOKEN \
   MAILHOST=$MAILHOST
 
+EXPOSE 80
+
 # Add external files
 COPY files/setup.sh /opt/perforce/swarm/setup.sh
 
@@ -56,12 +58,16 @@ RUN \
   mkdir -p /opt/perforce/swarm/data/queue/tokens && \
   touch /opt/perforce/swarm/data/queue/tokens/$SWARMTOKEN
 
-EXPOSE 80
+USER swarm
+COPY files/swarm.p4s /home/swarm/swarm.p4s
+COPY files/client.p4s /home/swarm/client.p4s
+COPY files/swarm-trigger.pl /home/swarm/swarm-trigger.pl
 
 # --------------------------------------------------------------------------------
 # Docker RUN
 # --------------------------------------------------------------------------------
 
+USER root
 ENTRYPOINT \
   cron start && \
   /opt/perforce/swarm/setup.sh && \
