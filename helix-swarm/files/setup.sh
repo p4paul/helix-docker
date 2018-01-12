@@ -1,7 +1,7 @@
 #!/bin/bash
 
 /opt/perforce/swarm/sbin/configure-swarm.sh --non-interactive \
-    --force --p4port ${P4PORT} \
+    --p4port ${P4PORT} \
     --swarm-user ${SWARMUSER} --swarm-passwd ${SWARMPASSWD} \
     --swarm-host ${SWARMHOST} --email-host ${MAILHOST} \
     --create --create-group \

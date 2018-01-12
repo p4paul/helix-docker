@@ -10,7 +10,7 @@ LABEL maintainer="Paul Allen (pallen@perforce.com)"
 # Update Ubuntu and add Perforce Package Source
 RUN \
   apt-get update && \
-  apt-get install -y wget unzip && \
+  apt-get install -y wget curl unzip && \
   wget -qO - https://package.perforce.com/perforce.pubkey | sudo apt-key add - && \
   echo "deb http://package.perforce.com/apt/ubuntu trusty release" > /etc/apt/sources.list.d/perforce.list && \
   apt-get update
@@ -72,3 +72,8 @@ ENTRYPOINT \
   cron start && \
   /opt/perforce/swarm/setup.sh && \
   bash
+
+HEALTHCHECK \
+  --interval=2m \
+  --timeout=10s \
+  CMD curl --fail http://localhost/api/version || exit 1
