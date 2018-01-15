@@ -1,7 +1,9 @@
 version: '2'
 services:
   p4d.helix:
-    build: helix-p4d
+    build:
+      context: helix-p4d
+      dockerfile: Dockerfile.xenial
     hostname: p4d
     domainname: helix
     env_file:
@@ -11,7 +13,9 @@ services:
     tty: true
 
   swarm.helix:
-    build: helix-swarm
+    build:
+      context: helix-swarm
+      dockerfile: Dockerfile.xenial
     hostname: swarm
     domainname: helix
     env_file:

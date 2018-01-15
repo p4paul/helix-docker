@@ -7,7 +7,7 @@ FROM centos:7
 LABEL vendor="Perforce Software"
 LABEL maintainer="Paul Allen (pallen@perforce.com)"
 
-# Update Ubuntu and add Perforce Package Source
+# Update and add Perforce Package Source
 RUN \
   rpm --import https://package.perforce.com/perforce.pubkey && \
   echo -e "[perforce]\nname=Perforce\nbaseurl=http://package.perforce.com/yum/rhel/7/x86_64\nenabled=1\ngpgcheck=1" > /etc/yum.repos.d/perforce.repo && \
@@ -36,7 +36,7 @@ ENV P4NAME=$P4NAME \
 ENV P4HOME=/p4
 ENV P4LOGDIR=$P4HOME/log
 
-# Derrived Environment
+# Derived Environment
 ENV P4ROOT=$P4HOME/root \
   P4DEPOTS=$P4HOME/depots \
   P4CKP=$P4HOME/checkpoints \

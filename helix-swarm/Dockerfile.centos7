@@ -1,0 +1,72 @@
+# --------------------------------------------------------------------------------
+# Docker configuration for P4D
+# --------------------------------------------------------------------------------
+
+FROM centos:7
+
+LABEL vendor="Perforce Software"
+LABEL maintainer="Paul Allen (pallen@perforce.com)"
+
+# Add Perforce Package Source, create swarm user and install Helix Swarm
+RUN \
+  useradd --user-group --home-dir /home/swarm --create-home --uid 1000 swarm && \
+  rpm --import https://package.perforce.com/perforce.pubkey && \
+  echo -e "[perforce]\nname=Perforce\nbaseurl=http://package.perforce.com/yum/rhel/7/x86_64\nenabled=1\ngpgcheck=1" > /etc/yum.repos.d/perforce.repo && \
+  yum -y install cronie helix-cli helix-swarm
+
+# --------------------------------------------------------------------------------
+# Docker ENVIRONMENT
+# --------------------------------------------------------------------------------
+
+# Default Environment
+ARG P4PORT=perforce:1666
+ARG P4USER=super
+ARG P4PASSWD=Password!
+ARG SWARMHOST=localhost
+ARG SWARMUSER=swarm
+ARG SWARMPASSWD=$P4PASSWD
+ARG SWARMTOKEN=00000000-0000-0000-0000-000000000000
+ARG MAILHOST=$MAILHOST
+
+# Configure Swarm Environment
+ENV P4PORT=$P4PORT \
+  P4USER=$P4USER \
+  P4PASSWD=$P4PASSWD \
+  SWARMHOST=$SWARMHOST \
+  SWARMUSER=$SWARMUSER \
+  SWARMPASSWD=$SWARMPASSWD \
+  SWARMTOKEN=$SWARMTOKEN \
+  MAILHOST=$MAILHOST
+
+EXPOSE 80
+
+# Add external files
+COPY files/setup.sh /opt/perforce/swarm/setup.sh
+
+# Configure Apache/Swarm
+RUN \
+  chmod +x /opt/perforce/swarm/setup.sh && \
+  chown -R apache:apache /opt/perforce/swarm/data && \
+  mkdir -p /opt/perforce/swarm/data/queue/tokens && \
+  touch /opt/perforce/swarm/data/queue/tokens/$SWARMTOKEN
+
+USER swarm
+COPY files/swarm.p4s /home/swarm/swarm.p4s
+COPY files/client.p4s /home/swarm/client.p4s
+COPY files/swarm-trigger.pl /home/swarm/swarm-trigger.pl
+
+# --------------------------------------------------------------------------------
+# Docker RUN
+# --------------------------------------------------------------------------------
+
+USER root
+ENTRYPOINT \
+  crond && \
+  /opt/perforce/swarm/setup.sh && \
+  apachectl && \
+  bash
+
+HEALTHCHECK \
+  --interval=2m \
+  --timeout=10s \
+  CMD curl --fail http://localhost/api/version || exit 1
