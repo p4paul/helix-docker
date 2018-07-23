@@ -12,6 +12,18 @@ services:
       - 4000:1666
     tty: true
 
+  build.helix:
+    build:
+      context: helix-build
+      dockerfile: Dockerfile.xenial
+    hostname: build
+    domainname: helix
+    env_file:
+      - helix.env
+    ports:
+      - 4001:1666
+    tty: true
+
   swarm.helix:
     build:
       context: helix-swarm

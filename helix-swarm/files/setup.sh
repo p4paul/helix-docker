@@ -19,3 +19,5 @@ p4 submit -d "Swarm trigger"
 p4 triggers -o > /home/swarm/current.p4s
 cat /home/swarm/swarm.p4s >> /home/swarm/current.p4s
 p4 triggers -i < /home/swarm/current.p4s
+
+echo "Swarm setup finished."

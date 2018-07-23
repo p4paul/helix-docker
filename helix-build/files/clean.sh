@@ -18,4 +18,4 @@ echo $P4NAME > $P4ROOT/server.id
 p4d $P4CASE -r$P4ROOT -p$P4TCP -L$P4LOG -J$P4JOURNAL -d
 until p4 info -s; do sleep 1; done
 
-empty_setup.sh
+replica_setup.sh

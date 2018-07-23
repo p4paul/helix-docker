@@ -117,8 +117,8 @@
 # by values of matching variables in default config files or the one specified
 # via -c as described above.
 my %config = (
-    SWARM_HOST        => %SWARMHOST%,
-    SWARM_TOKEN       => %SWARMTOKEN%,
+    SWARM_HOST        => 'http://%SWARMHOST%',
+    SWARM_TOKEN       => '%SWARMTOKEN%',
     ADMIN_USER        => '',
     ADMIN_TICKET_FILE => '',
     P4_PORT           => '',

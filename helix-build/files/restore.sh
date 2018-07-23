@@ -1,8 +1,5 @@
 #!/bin/bash
 
-## Find latest checkpoint
-/usr/local/bin/latest_checkpoint.sh
-
 ## Test Checkpoint exists
 if [ ! -L $P4CKP/latest ]; then
   echo "Error: Checkpoint for link $P4CKP/latest not found."
@@ -10,12 +7,14 @@ if [ ! -L $P4CKP/latest ]; then
 fi
 
 ## Stop Perforce
-p4 admin stop
-until ! p4 info -s 2> /dev/null; do sleep 1; done
+p4 -p$P4TCP admin stop
+until ! p4 -p$P4TCP info -s 2> /dev/null; do sleep 1; done
 
 ## Save current data base
-mkdir -p $P4ROOT/save
-mv $P4ROOT/db.* $P4ROOT/save
+if [ -f $P4ROOT/db.* ]; then
+	mkdir -p $P4ROOT/save
+	mv $P4ROOT/db.* $P4ROOT/save
+fi
 
 ## Set server name
 echo $P4NAME > $P4ROOT/server.id
@@ -30,4 +29,4 @@ p4d $P4CASE -r $P4ROOT "-cset ${P4NAME}#journalPrefix=${P4CKP}/${JNL_PREFIX}"
 
 ## Start Perforce
 p4d $P4CASE -r$P4ROOT -p$P4TCP -L$P4LOG -J$P4JOURNAL -d
-until p4 info -s; do sleep 1; done
+until p4 -p$P4TCP info -s; do sleep 1; done

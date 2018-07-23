@@ -1,5 +1,5 @@
 # --------------------------------------------------------------------------------
-# Docker configuration for P4D
+# Docker configuration for Swarm
 # --------------------------------------------------------------------------------
 
 FROM ubuntu:xenial
@@ -10,7 +10,7 @@ LABEL maintainer="Paul Allen (pallen@perforce.com)"
 # Update Ubuntu and add Perforce Package Source
 RUN \
   apt-get update && \
-  apt-get install -y wget curl unzip && \
+  apt-get install -y wget curl unzip vim && \
   wget -qO - https://package.perforce.com/perforce.pubkey | apt-key add - && \
   echo "deb http://package.perforce.com/apt/ubuntu xenial release" > /etc/apt/sources.list.d/perforce.list && \
   apt-get update
@@ -28,7 +28,7 @@ RUN \
 # Default Environment
 ARG P4PORT=perforce:1666
 ARG P4USER=super
-ARG P4PASSWD=Password!
+ARG P4PASSWD=password
 ARG SWARMHOST=localhost
 ARG SWARMUSER=swarm
 ARG SWARMPASSWD=$P4PASSWD
