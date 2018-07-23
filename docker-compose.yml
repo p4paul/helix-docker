@@ -22,6 +22,8 @@ services:
       - helix.env
     ports:
       - 4001:1666
+    depends_on:
+      - p4d.helix
     tty: true
 
   swarm.helix:

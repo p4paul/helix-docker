@@ -16,6 +16,6 @@ echo $P4NAME > $P4ROOT/server.id
 
 ## Start Perforce
 p4d $P4CASE -r$P4ROOT -p$P4TCP -L$P4LOG -J$P4JOURNAL -d
-until p4 info -s; do sleep 1; done
+until p4 -p$P4TCP info -s; do sleep 1; done
 
 replica_setup.sh

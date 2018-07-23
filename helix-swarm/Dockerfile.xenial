@@ -49,6 +49,7 @@ EXPOSE 80
 
 # Add external files
 COPY files/setup.sh /opt/perforce/swarm/setup.sh
+COPY files/config.php /opt/perforce/swarm/data/config.php
 
 # Configure Apache/Swarm
 RUN \

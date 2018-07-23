@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Wait for master to start
+until p4 info -s; do sleep 1; done
+
 # Create service user
 echo -e "User: ${SERVICEUSER}\nType: service\nFullName: ${SERVICEUSER}\nEmail: ${SERVICEUSER}@${P4PORT}" | p4 user -i -f
 echo -e "Group: ${SERVICEGROUP}\nTimeout: unlimited\nUsers:\n\t${SERVICEUSER}\n" | p4 group -i

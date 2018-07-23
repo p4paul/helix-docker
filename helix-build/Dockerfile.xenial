@@ -91,6 +91,7 @@ USER perforce
 # --------------------------------------------------------------------------------
 
 ENTRYPOINT \
+  replica_setup.sh && \
   bash
 
 HEALTHCHECK \
