@@ -75,10 +75,7 @@ RUN \
 
 # Expose Perforce; TCP port and volumes
 EXPOSE $P4TCP
-VOLUME $P4ROOT
-VOLUME $P4LOGDIR
-VOLUME $P4DEPOTS
-VOLUME $P4CKP
+VOLUME $P4HOME
 
 # Setup basic user and security for an empty server
 USER perforce

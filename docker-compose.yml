@@ -10,6 +10,8 @@ services:
       - helix.env
     ports:
       - 4000:1666
+    volumes:
+      - ./volumes/p4d-home:/p4
     tty: true
 
   build.helix:
