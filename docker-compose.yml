@@ -1,9 +1,9 @@
-version: '2'
+version: '3.2'
 services:
   p4d.helix:
     build:
       context: helix-p4d
-      dockerfile: Dockerfile.xenial
+      dockerfile: Dockerfile
     hostname: p4d
     domainname: helix
     env_file:
@@ -15,7 +15,7 @@ services:
   build.helix:
     build:
       context: helix-build
-      dockerfile: Dockerfile.xenial
+      dockerfile: Dockerfile
     hostname: build
     domainname: helix
     env_file:
@@ -29,7 +29,7 @@ services:
   swarm.helix:
     build:
       context: helix-swarm
-      dockerfile: Dockerfile.xenial
+      dockerfile: Dockerfile
     hostname: swarm
     domainname: helix
     env_file:
@@ -38,4 +38,19 @@ services:
       - 5080:80
     depends_on:
       - p4d.helix
+    tty: true
+
+  jira.helix:
+    build:
+      context: jira
+      dockerfile: Dockerfile
+    hostname: jira
+    domainname: helix
+    env_file:
+      - helix.env
+    ports:
+      - 7070:8080
+    volumes:
+      - ./volumes/jira-data:/var/atlassian/jira
+      - ./volumes/jira-logs:/opt/atlassian/jira/logs
     tty: true
