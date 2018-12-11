@@ -7,14 +7,13 @@ if [ ! -L $P4CKP/latest ]; then
 fi
 
 ## Stop Perforce
-p4 -p$P4TCP admin stop
+echo "Stopping Build Server..."
+p4 -p$P4TCP admin stop 2> /dev/null
 until ! p4 -p$P4TCP info -s 2> /dev/null; do sleep 1; done
+echo "Build Server Stopped."
 
-## Save current data base
-if [ -f $P4ROOT/db.* ]; then
-	mkdir -p $P4ROOT/save
-	mv $P4ROOT/db.* $P4ROOT/save
-fi
+## Remove current data base
+rm -rf $P4ROOT/*
 
 ## Set server name
 echo $P4NAME > $P4ROOT/server.id
@@ -30,3 +29,4 @@ p4d $P4CASE -r $P4ROOT "-cset ${P4NAME}#journalPrefix=${P4CKP}/${JNL_PREFIX}"
 ## Start Perforce
 p4d $P4CASE -r$P4ROOT -p$P4TCP -L$P4LOG -J$P4JOURNAL -d
 until p4 -p$P4TCP info -s; do sleep 1; done
+echo "Build Server Started."

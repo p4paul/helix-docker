@@ -20,21 +20,24 @@ RUN \
 # --------------------------------------------------------------------------------
 
 # Default Environment
+ARG P4PORT=p4d.helix:1666
 ARG P4NAME=build
 ARG P4TCP=1666
 ARG P4USER=super
-ARG P4PASSWD=password
-ARG P4CASE=-C1
+ARG P4PASSWD=Passw0rd
+ARG P4CASE=-C0
+ARG P4CHARSET=utf8
 ARG SERVICEUSER=service
 ARG SERVICEGROUP=unlimited
 
 # Dynamic Environment
-ENV P4NAME=$P4NAME \
+ENV P4PORT=$P4PORT \
+  P4NAME=$P4NAME \
   P4TCP=$P4TCP \
-  P4PORT=$P4TCP \
   P4USER=$P4USER \
   P4PASSWD=$P4PASSWD \
   P4CASE=$P4CASE \
+  P4CHARSET=$P4CHARSET \
   JNL_PREFIX=$P4NAME \
   SERVICEUSER=$SERVICEUSER \
   SERVICEGROUP=$SERVICEGROUP
@@ -54,10 +57,8 @@ ENV P4ROOT=$P4HOME/root \
 # Docker BUILD
 # --------------------------------------------------------------------------------
 
-# Create perforce user and install Perforce Server
-RUN \
-  useradd --user-group --home-dir $P4HOME --create-home --uid 1000 perforce && \
-  apt-get install -y helix-p4d
+# Install Perforce Server
+RUN apt-get install -y helix-p4d
 
 # Add external files
 COPY files/clean.sh /usr/local/bin/clean.sh
@@ -70,21 +71,14 @@ RUN \
   chmod +x /usr/local/bin/restore.sh && \
   chmod +x /usr/local/bin/replica_setup.sh && \
   chmod +x /usr/local/bin/latest_checkpoint.sh && \
-  mkdir -p $P4ROOT && chown perforce:perforce $P4ROOT && \
-  mkdir -p $P4DEPOTS && chown perforce:perforce $P4DEPOTS && \
-  mkdir -p $P4CKP && chown perforce:perforce $P4CKP && \
-  mkdir -p $P4LOGDIR && chown perforce:perforce $P4LOGDIR && \
-  chown -R perforce:perforce $P4HOME
+  mkdir -p $P4ROOT && \
+  mkdir -p $P4DEPOTS && \
+  mkdir -p $P4CKP && \
+  mkdir -p $P4LOGDIR
 
 # Expose Perforce; TCP port and volumes
 EXPOSE $P4TCP
-VOLUME $P4ROOT
-VOLUME $P4LOGDIR
-VOLUME $P4DEPOTS
-VOLUME $P4CKP
-
-# Setup basic user and security for an empty server
-USER perforce
+VOLUME $P4HOME
 
 # --------------------------------------------------------------------------------
 # Docker RUN
@@ -97,4 +91,4 @@ ENTRYPOINT \
 HEALTHCHECK \
   --interval=2m \
   --timeout=10s \
-  CMD p4 info -s > /dev/null || exit 1
+  CMD p4 -p $P4TCP info -s > /dev/null || exit 1

@@ -6,8 +6,6 @@ services:
       dockerfile: Dockerfile
     hostname: p4d
     domainname: helix
-    env_file:
-      - helix.env
     ports:
       - 4000:1666
     volumes:
@@ -20,8 +18,6 @@ services:
       dockerfile: Dockerfile
     hostname: build
     domainname: helix
-    env_file:
-      - helix.env
     ports:
       - 4001:1666
     depends_on:
@@ -34,25 +30,9 @@ services:
       dockerfile: Dockerfile
     hostname: swarm
     domainname: helix
-    env_file:
-      - helix.env
     ports:
       - 5080:80
     depends_on:
-      - p4d.helix
+      - build.helix
     tty: true
 
-  jira.helix:
-    build:
-      context: jira
-      dockerfile: Dockerfile
-    hostname: jira
-    domainname: helix
-    env_file:
-      - helix.env
-    ports:
-      - 7070:8080
-    volumes:
-      - ./volumes/jira-data:/var/atlassian/jira
-      - ./volumes/jira-logs:/opt/atlassian/jira/logs
-    tty: true

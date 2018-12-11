@@ -6,7 +6,7 @@ return array(
     'p4' => array(
         'port' => 'p4d.helix:1666',
         'user' => 'swarm',
-        'password' => 'Password!',
+        'password' => 'Passw0rd',
     ),
     'mail' => array(
         'transport' => array(
