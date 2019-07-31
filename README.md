@@ -6,7 +6,7 @@ Demo the Perforce Server, replicas with Swarm.
 ## Build and Run
 
 	docker-compose build
-	docker-compose run
+	docker-compose up
 	
 Swarm server runs on port [5080](http://localhost:5080).
 
