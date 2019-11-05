@@ -7,3 +7,5 @@ Triggers:
   swarm.changesave form-save     change "perl %//depot/triggers/swarm-trigger.pl% -t changesave -c %//depot/triggers/swarm-trigger.conf% -v %formname%"
   swarm.shelve     shelve-commit //...  "perl %//depot/triggers/swarm-trigger.pl% -t shelve     -c %//depot/triggers/swarm-trigger.conf% -v %change%"
   swarm.commit     change-commit //...  "perl %//depot/triggers/swarm-trigger.pl% -t commit     -c %//depot/triggers/swarm-trigger.conf% -v %change%"
+  SEARCH.change    form-commit   change "%//depot/p4search/install/search-queue.sh% -t change   -v %formname%"
+  SEARCH.commit    change-commit //...  "%//depot/p4search/install/search-queue.sh% -t commit   -v %change%"

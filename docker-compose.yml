@@ -36,3 +36,15 @@ services:
       - build.helix
     tty: true
 
+  search.helix:
+    build:
+      context: p4-search
+      dockerfile: Dockerfile
+    hostname: search
+    domainname: helix
+    ports:
+      - 4088:8088
+      - 8983:8983
+    depends_on:
+      - p4d.helix
+    tty: true
