@@ -11,6 +11,15 @@
 echo $P4PASSWD > pass.txt
 p4 login < pass.txt
 
+## Add Swarm user to protections
+p4 protect -o > /$P4HOME/protect.p4s
+grep -q -F 'super user ${SWARMUSER}' /$P4HOME/protect.p4s
+if [ $? -ne 0 ]; then
+	echo "Adding Swarm user to protection table"
+	echo -e "\tadmin user ${SWARMUSER} * //..." >> /$P4HOME/protect.p4s
+	p4 protect -i < /$P4HOME/protect.p4s
+fi
+
 ## Remove all triggers
 echo "Triggers:" | p4 triggers -i
 
@@ -25,5 +34,10 @@ p4 submit -d "Swarm trigger"
 
 ## Install the Swarm triggers
 p4 triggers -i < /home/swarm/swarm.p4s
+
+## Remove URL property and set to external docker localhost URL
+p4 property -d -n P4.Swarm.URL -s 0
+p4 property -a -n P4.Swarm.URL -v http://localhost:5080
+
 
 echo "Swarm setup finished."

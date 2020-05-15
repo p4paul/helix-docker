@@ -14,5 +14,10 @@ RUN \
   
 RUN apt-get install -y helix-cli
 
-ADD http://ftp.perforce.com/perforce/r16.1/bin.java/p4search.tgz /p4-search
+ADD http://ftp.perforce.com/perforce/r16.1/bin.java/p4search.tgz /p4search.tgz 
 
+RUN tar xfz /p4search.tgz
+
+## TODO - add triggers:
+#  SEARCH.change    form-commit   change "%//depot/p4search/install/search-queue.sh% -t change   -v %formname%"
+#  SEARCH.commit    change-commit //...  "%//depot/p4search/install/search-queue.sh% -t commit   -v %change%"
