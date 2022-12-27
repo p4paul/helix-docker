@@ -14,7 +14,7 @@ RUN \
   
 RUN apt-get install -y helix-cli
 
-ADD http://ftp.perforce.com/perforce/r16.1/bin.java/p4search.tgz /p4search.tgz 
+ADD http://ftp.perforce.com/perforce/r22.3/bin.java/helix-p4search.tgz /p4search.tgz 
 
 RUN tar xfz /p4search.tgz
 
